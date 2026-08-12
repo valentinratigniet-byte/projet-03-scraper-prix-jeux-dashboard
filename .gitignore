@@ -1,0 +1,6 @@
+# Base SQLite régénérée par la collecte
+data/deals.db
+
+# Python
+__pycache__/
+.venv/

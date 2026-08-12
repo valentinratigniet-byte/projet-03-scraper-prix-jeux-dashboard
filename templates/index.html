@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎮 Bons plans jeux vidéo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  :root{
+    --petrol:#137A8B; --petrol-d:#0C5563; --ambre:#E4A93C;
+    --ink:#1C2733; --muted:#5E6B7A; --line:#DCE2E8; --bg:#F4F6F8; --card:#fff;
+    --good:#2FA36B; --font:"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font)}
+  header{background:var(--petrol-d);color:#fff;padding:20px clamp(16px,4vw,40px)}
+  header h1{margin:0;font-size:1.5rem} header p{margin:.3em 0 0;opacity:.85;font-size:.9rem}
+  .wrap{max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,32px)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .kpi .l{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .kpi .v{font-size:1.5rem;font-weight:700;color:var(--petrol);margin-top:4px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px}
+  .filters{display:flex;flex-wrap:wrap;gap:16px;align-items:end}
+  .filters label{display:flex;flex-direction:column;font-size:.78rem;color:var(--muted);gap:4px}
+  .filters input,.filters select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+  .filters output{font-weight:700;color:var(--ink)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .deal{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .deal.free{border-color:var(--ambre);box-shadow:0 0 0 2px rgba(228,169,60,.25)}
+  .deal .t{font-weight:600;font-size:.92rem;line-height:1.25}
+  .deal .s{font-size:.75rem;color:var(--muted)}
+  .deal .p{display:flex;align-items:baseline;gap:8px;margin-top:auto}
+  .deal .sale{font-size:1.15rem;font-weight:700;color:var(--petrol)}
+  .deal .norm{font-size:.8rem;color:var(--muted);text-decoration:line-through}
+  .badge{align-self:flex-start;background:var(--good);color:#fff;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px}
+  .badge.free{background:var(--ambre)}
+  .deal a{margin-top:4px;font-size:.8rem;color:var(--petrol);text-decoration:none;font-weight:600}
+  h2{font-size:1rem;margin:0 0 12px}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎮 Bons plans jeux vidéo</h1>
+  <p id="subtitle">Données CheapShark · filtres réactifs</p>
+</header>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="l">Offres affichées</div><div class="v" id="k-count">–</div></div>
+    <div class="kpi"><div class="l">Réduction moyenne</div><div class="v" id="k-savings">–</div></div>
+    <div class="kpi"><div class="l">Jeux gratuits</div><div class="v" id="k-free">–</div></div>
+    <div class="kpi"><div class="l">Meilleure affaire</div><div class="v" id="k-best">–</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="filters">
+      <label>Recherche<input type="search" id="f-search" placeholder="titre du jeu…"></label>
+      <label>Prix max : <output id="o-price">60 €</output>
+        <input type="range" id="f-price" min="0" max="60" value="60" step="1"></label>
+      <label>Réduction min : <output id="o-disc">0 %</output>
+        <input type="range" id="f-disc" min="0" max="100" value="0" step="5"></label>
+      <label>Boutique<select id="f-store"><option value="">Toutes</option></select></label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Nombre d'offres par boutique</h2>
+    <canvas id="chart" height="90"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2 id="grid-title">Offres</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+const DEALS = {{ deals|tojson }};
+const $ = s => document.querySelector(s);
+const euro = v => v === 0 ? "Gratuit" : v.toFixed(2).replace('.', ',') + " €";
+
+// remplir le sélecteur de boutiques
+[...new Set(DEALS.map(d => d.store))].sort().forEach(s => {
+  const o = document.createElement("option"); o.value = s; o.textContent = s; $("#f-store").append(o);
+});
+if (DEALS[0]) $("#subtitle").textContent =
+  `Données CheapShark · ${DEALS.length} offres · maj ${DEALS[0].fetched_at.slice(0,10)}`;
+
+let chart;
+function apply(){
+  const q = $("#f-search").value.toLowerCase();
+  const maxP = +$("#f-price").value, minD = +$("#f-disc").value, store = $("#f-store").value;
+  $("#o-price").textContent = maxP + " €"; $("#o-disc").textContent = minD + " %";
+
+  const f = DEALS.filter(d =>
+    d.title.toLowerCase().includes(q) &&
+    d.sale_price <= maxP && d.savings_pct >= minD &&
+    (!store || d.store === store));
+
+  // KPIs
+  $("#k-count").textContent = f.length;
+  $("#k-savings").textContent = f.length ? Math.round(f.reduce((s,d)=>s+d.savings_pct,0)/f.length) + " %" : "–";
+  $("#k-free").textContent = f.filter(d=>d.sale_price===0).length;
+  $("#k-best").textContent = f.length ? Math.round(Math.max(...f.map(d=>d.savings_pct))) + " %" : "–";
+
+  // grille
+  $("#grid-title").textContent = `Offres (${f.length})`;
+  $("#grid").innerHTML = f.map(d => `
+    <div class="deal ${d.sale_price===0?'free':''}">
+      <span class="badge ${d.sale_price===0?'free':''}">-${Math.round(d.savings_pct)}%</span>
+      <div class="t">${d.title}</div>
+      <div class="s">${d.store}${d.metacritic?` · Metacritic ${d.metacritic}`:''}</div>
+      <div class="p"><span class="sale">${euro(d.sale_price)}</span><span class="norm">${euro(d.normal_price)}</span></div>
+      <a href="${d.url}" target="_blank" rel="noopener">Voir l'offre →</a>
+    </div>`).join("") || "<p style='color:var(--muted)'>Aucune offre ne correspond.</p>";
+
+  // graphique par boutique
+  const byStore = {};
+  f.forEach(d => byStore[d.store] = (byStore[d.store]||0)+1);
+  const labels = Object.keys(byStore).sort((a,b)=>byStore[b]-byStore[a]);
+  const data = labels.map(l=>byStore[l]);
+  if (chart) chart.destroy();
+  chart = new Chart($("#chart"), {
+    type:"bar",
+    data:{labels, datasets:[{data, backgroundColor:"#137A8B", borderRadius:4}]},
+    options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{precision:0}}}}
+  });
+}
+["f-search","f-price","f-disc","f-store"].forEach(id => $("#"+id).addEventListener("input", apply));
+apply();
+</script>
+</body>
+</html>
