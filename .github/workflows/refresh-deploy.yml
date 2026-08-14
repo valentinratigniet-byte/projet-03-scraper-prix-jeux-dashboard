@@ -1,0 +1,13 @@
+name: Rafraîchir les prix (redeploy Render)
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # 06:00 UTC chaque jour
+  workflow_dispatch:        # + déclenchement manuel depuis l'onglet Actions
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclenche un redeploy Render (rejoue la collecte CheapShark au build)
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"

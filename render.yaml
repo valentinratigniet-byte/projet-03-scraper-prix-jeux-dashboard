@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: projet-03-scraper-prix-jeux-dashboard
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python src/fetch_deals.py"
+    startCommand: "gunicorn app:app"

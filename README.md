@@ -28,18 +28,22 @@ python src/fetch_deals.py     # collecte -> data/deals.db (~160 offres)
 python app.py                 # -> http://localhost:5000
 ```
 
-## ☁️ Déployer (Render / Railway)
+## ☁️ Déployer (Render)
 
-Le projet est prêt à déployer (`Procfile` + `gunicorn`) :
+Le repo contient un **Blueprint** [`render.yaml`](render.yaml) : build =
+`pip install -r requirements.txt && python src/fetch_deals.py` (régénère
+`data/deals.db`, gitignoré, à chaque déploiement), start = `gunicorn app:app`.
 
-```
-web: gunicorn app:app
-```
+1. Sur [render.com](https://render.com) → **New → Blueprint** → connecter ce repo GitHub.
+   Render lit `render.yaml` et configure tout automatiquement (plan gratuit).
+2. Une fois le service créé → **Settings → Deploy Hook**, copier l'URL.
+3. Dans le repo GitHub → **Settings → Secrets and variables → Actions** → nouveau secret
+   `RENDER_DEPLOY_HOOK_URL` avec cette URL.
+4. Le workflow [`.github/workflows/refresh-deploy.yml`](.github/workflows/refresh-deploy.yml)
+   déclenche un redeploy chaque jour à 6h UTC (+ bouton manuel dans l'onglet *Actions*) —
+   chaque redeploy rejoue la collecte CheapShark, donc les prix se rafraîchissent.
 
-- **Render** : nouveau *Web Service* depuis le repo → build `pip install -r requirements.txt`,
-  start `gunicorn app:app`.
-- Prévoir une tâche planifiée (cron) qui rejoue `python src/fetch_deals.py` pour
-  rafraîchir les prix (1×/jour suffit).
+*(Railway fonctionne aussi via le `Procfile` fourni, sans le Blueprint Render.)*
 
 ## 🗂️ Structure
 
@@ -48,7 +52,8 @@ projet-03-scraper-prix-jeux-dashboard/
 ├── app.py                 ← web app Flask (page + /api/deals)
 ├── src/fetch_deals.py     ← collecte CheapShark -> SQLite
 ├── templates/index.html   ← dashboard (filtres réactifs + Chart.js)
-├── requirements.txt · Procfile
+├── requirements.txt · Procfile · render.yaml
+├── .github/workflows/refresh-deploy.yml  ← redeploy quotidien (rafraîchit les prix)
 └── docs/ethique-scraping.md
 ```
 
