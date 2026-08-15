@@ -5,8 +5,11 @@
 > propre. Ce projet collecte des bons plans jeux, les stocke, et les expose dans une
 > **web app** avec filtres réactifs et mise en avant des meilleures offres.
 
-**👉 Aperçu interactif : https://claude.ai/code/artifact/d5f09fe5-d4a7-4c49-ab40-51487d80077c**
-*(données réelles figées ; la vraie app Flask se rafraîchit et se déploie)*
+**👉 App en ligne : https://projet-03-scraper-prix-jeux-dashboard.onrender.com**
+*(plan gratuit Render : le service s'endort après 15 min d'inactivité — la
+première visite prend ~30-50 s pour se réveiller)*
+
+Aperçu figé (secours) : https://claude.ai/code/artifact/d5f09fe5-d4a7-4c49-ab40-51487d80077c
 
 ## 🧩 Ce que fait le projet
 
