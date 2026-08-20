@@ -13,6 +13,18 @@ Aperçu figé (secours) : https://claude.ai/code/artifact/d5f09fe5-d4a7-4c49-ab4
 
 ## 🧩 Ce que fait le projet
 
+```mermaid
+flowchart LR
+    API["API CheapShark<br/>bons plans multi-boutiques"] -->|fetch_deals.py| DB[("SQLite<br/>data/deals.db")]
+    DB --> APP["App Flask<br/>filtres réactifs + Chart.js"]
+    APP --> USER["Utilisateur<br/>repère les bonnes affaires"]
+    CRON["GitHub Actions<br/>cron quotidien 6h UTC"] -.->|redeploy| BUILD["Build Render<br/>= rejoue la collecte"]
+    BUILD -.-> DB
+
+    style APP fill:#137A8B,color:#fff
+    style API fill:#E4A93C,color:#1a1a1a
+```
+
 1. **Collecte** ([`src/fetch_deals.py`](src/fetch_deals.py)) — API publique **CheapShark**
    (bons plans multi-boutiques, sans clé). Choix **éthique** vs scraping fragile —
    voir [docs/ethique-scraping.md](docs/ethique-scraping.md).
