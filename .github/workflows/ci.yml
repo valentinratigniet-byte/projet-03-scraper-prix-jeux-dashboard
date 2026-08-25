@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  app-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Collecter les bons plans (API CheapShark réelle, sans clé)
+        run: python src/fetch_deals.py
+
+      - name: Vérifier que l'app sert des données valides et triées
+        run: python test_app.py

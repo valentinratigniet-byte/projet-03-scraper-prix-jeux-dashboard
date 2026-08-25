@@ -1,5 +1,7 @@
 # Projet 03 — Suivi de prix de jeux vidéo + mini web app
 
+[![CI](https://github.com/valentinratigniet-byte/projet-03-scraper-prix-jeux-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/valentinratigniet-byte/projet-03-scraper-prix-jeux-dashboard/actions/workflows/ci.yml)
+
 > Suivre les prix et repérer les meilleures affaires demande de **collecter,
 > structurer et visualiser** une donnée qui n'existe pas sous forme de dataset
 > propre. Ce projet collecte des bons plans jeux, les stocke, et les expose dans une
@@ -66,9 +68,12 @@ Le repo contient un **Blueprint** [`render.yaml`](render.yaml) : build =
 projet-03-scraper-prix-jeux-dashboard/
 ├── app.py                 ← web app Flask (page + /api/deals)
 ├── src/fetch_deals.py     ← collecte CheapShark -> SQLite
+├── test_app.py            ← self-check : donnees valides, triees, routes OK
 ├── templates/index.html   ← dashboard (filtres réactifs + Chart.js)
 ├── requirements.txt · Procfile · render.yaml
-├── .github/workflows/refresh-deploy.yml  ← redeploy quotidien (rafraîchit les prix)
+├── .github/workflows/
+│   ├── ci.yml                 ← fetch reel + self-check a chaque push
+│   └── refresh-deploy.yml     ← redeploy quotidien (rafraîchit les prix)
 └── docs/ethique-scraping.md
 ```
 
