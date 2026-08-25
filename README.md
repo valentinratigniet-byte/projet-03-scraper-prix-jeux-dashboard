@@ -80,5 +80,5 @@ la fenêtre d'achat idéale par boutique.
 
 ---
 
-*Projet 03 du [Portfolio Data](../). Collecter → structurer → visualiser une donnée
+*Projet 03 du [Portfolio Data](https://github.com/valentinratigniet-byte). Collecter → structurer → visualiser une donnée
 qui n'existait pas, dans une petite app déployable.*
