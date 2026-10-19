@@ -13,6 +13,8 @@ première visite prend ~30-50 s pour se réveiller)*
 
 Aperçu figé (secours) : https://claude.ai/code/artifact/d5f09fe5-d4a7-4c49-ab40-51487d80077c
 
+🗺️ **[Schéma du dépôt (GitDiagram)](https://gitdiagram.com/valentinratigniet-byte/projet-03-scraper-prix-jeux-dashboard)** : vue d'ensemble générée automatiquement à partir du code.
+
 ## 🧩 Ce que fait le projet
 
 ```mermaid
