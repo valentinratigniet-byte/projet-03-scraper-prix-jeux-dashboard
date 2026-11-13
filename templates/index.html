@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🎮 Bons plans jeux vidéo</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --petrol:#137A8B; --petrol-d:#0C5563; --ambre:#E4A93C;
@@ -56,7 +56,7 @@
   <div class="panel">
     <div class="filters">
       <label>Recherche<input type="search" id="f-search" placeholder="titre du jeu…"></label>
-      <label>Prix max : <output id="o-price">60 €</output>
+      <label>Prix max : <output id="o-price">60 $</output>
         <input type="range" id="f-price" min="0" max="60" value="60" step="1"></label>
       <label>Réduction min : <output id="o-disc">0 %</output>
         <input type="range" id="f-disc" min="0" max="100" value="0" step="5"></label>
@@ -78,7 +78,8 @@
 <script>
 const DEALS = {{ deals|tojson }};
 const $ = s => document.querySelector(s);
-const euro = v => v === 0 ? "Gratuit" : v.toFixed(2).replace('.', ',') + " €";
+// CheapShark renvoie des prix en dollars américains (USD), pas en euros.
+const prix = v => v === 0 ? "Gratuit" : v.toFixed(2).replace('.', ',') + " $";
 
 // remplir le sélecteur de boutiques
 [...new Set(DEALS.map(d => d.store))].sort().forEach(s => {
@@ -91,7 +92,7 @@ let chart;
 function apply(){
   const q = $("#f-search").value.toLowerCase();
   const maxP = +$("#f-price").value, minD = +$("#f-disc").value, store = $("#f-store").value;
-  $("#o-price").textContent = maxP + " €"; $("#o-disc").textContent = minD + " %";
+  $("#o-price").textContent = maxP + " $"; $("#o-disc").textContent = minD + " %";
 
   const f = DEALS.filter(d =>
     d.title.toLowerCase().includes(q) &&
@@ -111,7 +112,7 @@ function apply(){
       <span class="badge ${d.sale_price===0?'free':''}">-${Math.round(d.savings_pct)}%</span>
       <div class="t">${d.title}</div>
       <div class="s">${d.store}${d.metacritic?` · Metacritic ${d.metacritic}`:''}</div>
-      <div class="p"><span class="sale">${euro(d.sale_price)}</span><span class="norm">${euro(d.normal_price)}</span></div>
+      <div class="p"><span class="sale">${prix(d.sale_price)}</span><span class="norm">${prix(d.normal_price)}</span></div>
       <a href="${d.url}" target="_blank" rel="noopener">Voir l'offre →</a>
     </div>`).join("") || "<p style='color:var(--muted)'>Aucune offre ne correspond.</p>";
 
